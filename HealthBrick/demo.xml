@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<healthlog> <!--根元素：健康记录-->
+    <day> <!--每日记录-->
+        <date>2022/3/17</date>
+        <food_list><!--当天的食物列表-->
+            <food>
+                <name>bread</name>
+                <weight>80</weight>
+                <carbo_cont>58.20</carbo_cont>
+                <protein_cont>8.10</protein_cont>
+                <fat_cont>14.00</fat_cont>
+                <carbo>46.56</carbo>
+                <protein>6.48</protein>
+                <fat>11.20</fat>
+            </food>
+            <food>
+            ...
+            </food>
+        </food_list>
+        <total_count>
+            <carbo>360</carbo>
+            <protein>108</protein>
+            <fat>210</fat>
+        </total_count>
+    </day>
+</healthlog>
