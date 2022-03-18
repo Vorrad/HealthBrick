@@ -14,7 +14,74 @@
                 <fat>11.20</fat>
             </food>
             <food>
-            ...
+                <name>milk</name>
+                <weight>200</weight>
+                <carbo_cont>8.20</carbo_cont>
+                <protein_cont>4.10</protein_cont>
+                <fat_cont>23.00</fat_cont>
+                <carbo>46.56</carbo>
+                <protein>6.48</protein>
+                <fat>11.20</fat>
+            </food>
+        </food_list>
+        <total_count>
+            <carbo>360</carbo>
+            <protein>108</protein>
+            <fat>210</fat>
+        </total_count>
+    </day>
+    <day>
+        <date>2022/3/18</date>
+        <food_list>
+            <food>
+                <name>rice</name>
+                <weight>80</weight>
+                <carbo_cont>58.20</carbo_cont>
+                <protein_cont>8.10</protein_cont>
+                <fat_cont>14.00</fat_cont>
+                <carbo>46.56</carbo>
+                <protein>6.48</protein>
+                <fat>11.20</fat>
+            </food>
+            <food>
+                <name>cake</name>
+                <weight>120</weight>
+                <carbo_cont>34.20</carbo_cont>
+                <protein_cont>1.10</protein_cont>
+                <fat_cont>5.00</fat_cont>
+                <carbo>10.56</carbo>
+                <protein>54.48</protein>
+                <fat>12.20</fat>
+            </food>
+            <food>
+                <name>fish</name>
+                <weight>200</weight>
+                <carbo_cont>24.20</carbo_cont>
+                <protein_cont>32.00</protein_cont>
+                <fat_cont>6.75</fat_cont>
+                <carbo>48.00</carbo>
+                <protein>64.80</protein>
+                <fat>15</fat>
+            </food>
+        </food_list>
+        <total_count>
+            <carbo>360</carbo>
+            <protein>108</protein>
+            <fat>210</fat>
+        </total_count>
+    </day>
+    <day>
+        <date>2022/3/19</date>
+        <food_list>
+            <food>
+                <name>rice</name>
+                <weight>80</weight>
+                <carbo_cont>58.20</carbo_cont>
+                <protein_cont>8.10</protein_cont>
+                <fat_cont>14.00</fat_cont>
+                <carbo>46.56</carbo>
+                <protein>6.48</protein>
+                <fat>11.20</fat>
             </food>
         </food_list>
         <total_count>
