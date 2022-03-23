@@ -90,4 +90,34 @@
             <fat>210</fat>
         </total_count>
     </day>
+    <day>
+    <date>2022/3/23</date>
+    <food_list>
+        <food>
+            <name>bread</name>
+            <weight>80</weight>
+            <carbo_cont>58.20</carbo_cont>
+            <protein_cont>8.10</protein_cont>
+            <fat_cont>14.00</fat_cont>
+            <carbo>46.56</carbo>
+            <protein>6.48</protein>
+            <fat>11.20</fat>
+        </food>
+        <food>
+            <name>milk</name>
+            <weight>200</weight>
+            <carbo_cont>8.20</carbo_cont>
+            <protein_cont>4.10</protein_cont>
+            <fat_cont>23.00</fat_cont>
+            <carbo>46.56</carbo>
+            <protein>6.48</protein>
+            <fat>11.20</fat>
+        </food>
+    </food_list>
+    <total_count>
+        <carbo>360</carbo>
+        <protein>108</protein>
+        <fat>210</fat>
+    </total_count>
+</day>
 </healthlog>

@@ -49,6 +49,8 @@ private slots:
 
     void changeFoodSelect(int row);
 
+    void addFood();
+
 private:
 
     Ui::MainWindow *ui;

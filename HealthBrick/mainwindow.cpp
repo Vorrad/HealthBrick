@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "foodeditdialog.h"
 #include "ui_mainwindow.h"
 
 #include <QDebug>
@@ -148,6 +149,7 @@ QWidget *MainWindow::createFoodList()
     QPushButton* addButton = new QPushButton("添加",widget);
     QPushButton* editButton = new QPushButton("编辑",widget);
     QPushButton* deleteButton = new QPushButton("删除",widget);
+    connect(addButton,&QPushButton::clicked,this,&MainWindow::addFood);
 
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(editButton);
@@ -316,4 +318,10 @@ void MainWindow::changeFoodSelect(int row)
     detailText += QString("\n脂肪含量：%1").arg(i.next());
 
     detail->setText(detailText);
+}
+
+void MainWindow::addFood()
+{
+    FoodEditDialog* dialog = new FoodEditDialog;
+    dialog->show();
 }
