@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    this->resize(1000,600);
+
     today = QDateTime::currentDateTime().date();
 
     QHBoxLayout* hLayout = new QHBoxLayout;
@@ -36,33 +38,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->setCentralWidget(centralWidget);
 
     // 测试用
-    loadXML(":/XML/demo.xml");
+    on_openFileAction_triggered();
     report->setText(mainDoc->toString(2));
-
-    int status=1;   // 状态标志 0：找到当前日期  1：未找到当前日期
-
-    root = mainDoc->documentElement();    // 获取XML文件根元素
-    dayElement = root.firstChildElement();
-    QDomElement dateElement = dayElement.firstChildElement();
-    while (!dayElement.isNull())
-    {
-        if (dateElement.firstChild().toText().data() == // 检查日期
-                QString("%1/%2/%3").arg(today.year()).arg(today.month()).arg(today.day()))
-        {
-            status = 0;
-            break;
-        }
-        dayElement = dayElement.nextSiblingElement();
-        dateElement = dayElement.firstChildElement();
-    }
-    if (status == 1) QMessageBox::warning(this, "", "未找到今日数据！");
-    else {
-        qDebug()<<"today found! today:"+dateElement.firstChild().toText().data();
-        foodListElement = dateElement.nextSiblingElement();
-
-        QStringList foodList = getFoodList(foodListElement);
-        setFoodList(foodList);
-    }
+    setToday();
 
 }
 
@@ -73,7 +51,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_openFileAction_triggered()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, "打开文件", " ",  QString("xml(*.xml);;所有文件(*.*)"));
+    filePath = QFileDialog::getOpenFileName(this, "打开文件", " ",  QString("xml(*.xml);;所有文件(*.*)"));
     loadXML(filePath);
     report->setText(mainDoc->toString(2));
 
@@ -139,10 +117,6 @@ QWidget *MainWindow::createFoodList()
     title->setAlignment(Qt::AlignHCenter);
 
     foodList = new QListWidget;
-    for (int i=0;i<10;i++)
-    {
-        foodList->addItem(QString("面包%1").arg(i));
-    }
     connect(foodList,SIGNAL(currentRowChanged(int)),this,SLOT(changeFoodSelect(int)));
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -150,6 +124,7 @@ QWidget *MainWindow::createFoodList()
     QPushButton* editButton = new QPushButton("编辑",widget);
     QPushButton* deleteButton = new QPushButton("删除",widget);
     connect(addButton,&QPushButton::clicked,this,&MainWindow::addFood);
+    connect(deleteButton,&QPushButton::clicked,this,&MainWindow::deleteFood);
 
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(editButton);
@@ -205,6 +180,60 @@ void MainWindow::setFoodList(const QStringList nameList)
     foodList->addItems(nameList);
 }
 
+void MainWindow::setToday()
+{
+    int status=1;   // 状态标志 0：找到当前日期  1：未找到当前日期
+
+    root = mainDoc->documentElement();    // 获取XML文件根元素
+    dayElement = root.firstChildElement();
+    QDomElement dateElement = dayElement.firstChildElement();
+    while (!dayElement.isNull())
+    {
+        if (dateElement.firstChild().toText().data() == // 检查日期
+                QString("%1/%2/%3").arg(today.year()).arg(today.month()).arg(today.day()))
+        {
+            status = 0;
+            break;
+        }
+        dayElement = dayElement.nextSiblingElement();
+        dateElement = dayElement.firstChildElement();
+    }
+    if (status == 1)
+    {
+        QMessageBox::warning(this, "", "未找到今日数据！");
+        return;
+    }
+    else
+    {
+        foodListElement = dateElement.nextSiblingElement();
+
+        QStringList foodList = getFoodList(foodListElement);
+        setFoodList(foodList);
+    }
+
+    double carboTotal=0,proteinTotal=0,fatTotal=0;        // 总计
+
+    QDomElement food = foodListElement.firstChildElement();
+    while (!food.isNull())      // 累加对应属性
+    {
+        QDomElement curElement = food.firstChildElement()
+                                        .nextSiblingElement()
+                                        .nextSiblingElement()
+                                        .nextSiblingElement();
+        carboTotal += curElement.firstChild().toText().data().toDouble();
+        curElement = curElement.nextSiblingElement().nextSiblingElement();
+        proteinTotal += curElement.firstChild().toText().data().toDouble();
+        curElement = curElement.nextSiblingElement().nextSiblingElement();
+        fatTotal += curElement.firstChild().toText().data().toDouble();
+
+        food = food.nextSiblingElement();
+    }
+
+    summary->setText(QString("今天是%1年%2月%3日\n今日概览：\n碳水：%4 g\n蛋白质：%5 g\n脂肪：%6 g")
+                     .arg(today.year()).arg(today.month()).arg(today.day())
+                     .arg(carboTotal).arg(proteinTotal).arg(fatTotal));
+}
+
 QStringList MainWindow::getFoodList(QDomElement list)
 {
     QDomElement foodElement = list.firstChildElement();
@@ -237,6 +266,16 @@ QStringList MainWindow::getFoodDetail(QDomElement food)
     return foodDetail;
 }
 
+QDomDocument* MainWindow::getDoc()
+{
+    return mainDoc;
+}
+
+QString MainWindow::getFilePath()
+{
+    return filePath;
+}
+
 QDomElement MainWindow::searchElement(const QString name, QDomElement root)
 {
     QDomElement element = root.firstChildElement();
@@ -250,57 +289,9 @@ QDomElement MainWindow::searchElement(const QString name, QDomElement root)
     return QDomElement();
 }
 
-void MainWindow::on_writeXMLButton_clicked() // 写XML文档
-{
-    QString path = QFileDialog::getSaveFileName(this,"选择路径","D:/","XML(*.xml)");
-    if(path.isEmpty())
-        return;
-    qDebug()<<path;
-
-    QDomDocument doc;
-    //创建处理指令
-    QDomProcessingInstruction xmlInstruction =
-            doc.createProcessingInstruction("xml","version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"");
-    //添加注释
-    QDomComment comment = doc.createComment("这是一个注释");
-    //创建处理指令
-    QDomProcessingInstruction styleInstruction =
-            doc.createProcessingInstruction("xml-stylesheet","type=\"text/css\" href=\"style.css\"");
-    doc.appendChild(xmlInstruction);//开始文档（XML 声明）
-    doc.appendChild(comment);//注释
-    doc.appendChild(styleInstruction);//处理指令
-
-    //根元素
-    QDomElement root = doc.createElement("Blogs");
-    root.setAttribute("Version","1.0");
-    doc.appendChild(root);
-
-    //元素
-    QDomElement child = doc.createElement("blogs");
-    root.appendChild(child);
-
-    //元素 作者 个人说明
-    QDomElement author = doc.createElement("作者");
-    QDomElement instruction = doc.createElement("个人说明");
-    child.appendChild(author);
-    child.appendChild(instruction);
-
-    //元素中的内容
-    QDomText authorText = doc.createTextNode("一去二三里");
-    QDomText instructionText = doc.createTextNode("青春不老，奋斗不止！");
-    author.appendChild(authorText);
-    instruction.appendChild(instructionText);
-
-    //保存xml文件
-    QFile file(path);
-    file.open(QIODevice::WriteOnly);
-    QTextStream out(&file);
-    doc.save(out,QDomDocument::EncodingFromDocument);
-    file.close();
-}
-
 void MainWindow::changeFoodSelect(int row)
 {
+    foodRow = row;
     QDomElement currentFood = foodListElement.firstChildElement();
 
     for (int i=0;i<row;i++) currentFood = currentFood.nextSiblingElement(); // 单向查找至选定的食物
@@ -322,6 +313,26 @@ void MainWindow::changeFoodSelect(int row)
 
 void MainWindow::addFood()
 {
-    FoodEditDialog* dialog = new FoodEditDialog;
+    FoodEditDialog* dialog = new FoodEditDialog(FoodEditDialog::AddMode, this);
     dialog->show();
+}
+
+void MainWindow::deleteFood()
+{
+    QDomElement food = foodListElement.firstChildElement();
+    for (int i=0;i<foodRow;i++) food = food.nextSiblingElement();
+    foodListElement.removeChild(food);
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)){
+        QMessageBox::critical(this, "出错啦",
+                                     QString("无法写入文件"));
+        return;
+    }
+    QTextStream out(&file);
+    mainDoc->save(out,QDomDocument::EncodingFromDocument);
+    file.close();
+
+    setToday();
+    return;
 }

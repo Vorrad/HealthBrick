@@ -19,7 +19,16 @@ class MainWindow : public QMainWindow
 
 public slots:
 
+    void on_openFileAction_triggered();  // 打开文件
+    void on_newWindowAction_triggered();    // 新建窗口
+    void on_closeWindowAction_triggered();  // 关闭窗口
 
+    bool loadXML(const QString filePath); // 读XML文档
+
+    void changeFoodSelect(int row);
+
+    void addFood();
+    void deleteFood();
 
 public:
 
@@ -30,32 +39,22 @@ public:
     QWidget* createDetails();   // 创建窗口2：营养详情
     QWidget* createReport();    // 创建窗口3：营养报告
     void setFoodList(const QStringList nameList);
+    void setToday();
 
     QStringList getFoodList(QDomElement list);  // 输入food_list，获取食物名列表
     QStringList getFoodDetail(QDomElement food);// 输入food，获取食物属性列表
+    QDomDocument* getDoc();
+    QString getFilePath();
 
 
     QDomElement searchElement(const QString name, QDomElement root);
-
-private slots:
-
-    void on_openFileAction_triggered();  // 打开文件
-    void on_newWindowAction_triggered();    // 新建窗口
-    void on_closeWindowAction_triggered();  // 关闭窗口
-
-    bool loadXML(const QString filePath); // 读XML文档
-
-    void on_writeXMLButton_clicked();
-
-    void changeFoodSelect(int row);
-
-    void addFood();
 
 private:
 
     Ui::MainWindow *ui;
 
     QDate today;
+    QString filePath;
     QDomDocument* mainDoc;       // 窗口显示的数据文件主体
     QDomNode root;
     QDomElement dayElement;
@@ -67,6 +66,7 @@ private:
     QTextBrowser* detail;
     QTextBrowser* report;
 
+    int foodRow;                // 当前选中的行数
 
 };
 #endif // MAINWINDOW_H
