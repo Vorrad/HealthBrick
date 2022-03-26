@@ -81,6 +81,32 @@ FoodEditDialog::FoodEditDialog(enum EditMode mode, MainWindow* w)
     mainLayout->addLayout(btnLayout);
 
     this->setLayout(mainLayout);
+
+    if (mode == FoodEditDialog::EditMode)
+    {
+        QDomElement foodlist = w->getFoodlistElement();
+        QDomElement food = foodlist.firstChildElement();
+        int row = w->getFoodRow();
+        for (int i=0;i<row;i++) food = food.nextSiblingElement();
+
+        // 填充表项
+        QDomElement property = food.firstChildElement();
+        foodName->setText(property.firstChild().toText().data());
+        property = property.nextSiblingElement();
+        foodWeight->setText(property.firstChild().toText().data());
+        property = property.nextSiblingElement();
+        foodCarboCont->setText(property.firstChild().toText().data());
+        property = property.nextSiblingElement();
+        foodCarbo->setText(property.firstChild().toText().data());
+        property = property.nextSiblingElement();
+        foodProteinCont->setText(property.firstChild().toText().data());
+        property = property.nextSiblingElement();
+        foodProtein->setText(property.firstChild().toText().data());
+        property = property.nextSiblingElement();
+        foodFatCont->setText(property.firstChild().toText().data());
+        property = property.nextSiblingElement();
+        foodFat->setText(property.firstChild().toText().data());
+    }
 }
 
 void FoodEditDialog::addFood()
@@ -242,6 +268,23 @@ void FoodEditDialog::confirmBtnClicked()
             QMessageBox::critical(this,"出错啦","食物净含量不能为0");
             return;
         }
+        addFood();
+        parentWindow->setToday();
+    }
+    else if (dialogMode == FoodEditDialog::EditMode)
+    {
+
+        if (foodName->text()=="")
+        {
+            QMessageBox::critical(this,"出错啦","食物名不能为空");
+            return;
+        }
+        if (foodWeight->text().toInt()==0)
+        {
+            QMessageBox::critical(this,"出错啦","食物净含量不能为0");
+            return;
+        }
+        parentWindow->deleteFood();
         addFood();
         parentWindow->setToday();
     }

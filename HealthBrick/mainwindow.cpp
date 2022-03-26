@@ -124,6 +124,7 @@ QWidget *MainWindow::createFoodList()
     QPushButton* editButton = new QPushButton("编辑",widget);
     QPushButton* deleteButton = new QPushButton("删除",widget);
     connect(addButton,&QPushButton::clicked,this,&MainWindow::addFood);
+    connect(editButton,&QPushButton::clicked,this,&MainWindow::editFood);
     connect(deleteButton,&QPushButton::clicked,this,&MainWindow::deleteFood);
 
     buttonLayout->addWidget(addButton);
@@ -276,6 +277,16 @@ QString MainWindow::getFilePath()
     return filePath;
 }
 
+QDomElement MainWindow::getFoodlistElement()
+{
+    return foodListElement;
+}
+
+int MainWindow::getFoodRow()
+{
+    return foodRow;
+}
+
 QDomElement MainWindow::searchElement(const QString name, QDomElement root)
 {
     QDomElement element = root.firstChildElement();
@@ -302,10 +313,10 @@ void MainWindow::changeFoodSelect(int row)
     detailText += QString("%1").arg(i.next());
     detailText += QString("\n净含量（g/mL）：%1").arg(i.next());
     detailText += QString("\n碳水含量（每100g）：%1").arg(i.next());
-    detailText += QString("\n蛋白质含量（每100g）：%1").arg(i.next());
-    detailText += QString("\n脂肪含量（每100g）：%1").arg(i.next());
     detailText += QString("\n碳水含量：%1").arg(i.next());
+    detailText += QString("\n蛋白质含量（每100g）：%1").arg(i.next());
     detailText += QString("\n蛋白质含量：%1").arg(i.next());
+    detailText += QString("\n脂肪含量（每100g）：%1").arg(i.next());
     detailText += QString("\n脂肪含量：%1").arg(i.next());
 
     detail->setText(detailText);
@@ -314,6 +325,12 @@ void MainWindow::changeFoodSelect(int row)
 void MainWindow::addFood()
 {
     FoodEditDialog* dialog = new FoodEditDialog(FoodEditDialog::AddMode, this);
+    dialog->show();
+}
+
+void MainWindow::editFood()
+{
+    FoodEditDialog* dialog = new FoodEditDialog(FoodEditDialog::EditMode, this);
     dialog->show();
 }
 

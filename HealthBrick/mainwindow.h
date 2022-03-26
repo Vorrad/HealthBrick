@@ -28,6 +28,7 @@ public slots:
     void changeFoodSelect(int row);
 
     void addFood();
+    void editFood();
     void deleteFood();
 
 public:
@@ -45,6 +46,8 @@ public:
     QStringList getFoodDetail(QDomElement food);// 输入food，获取食物属性列表
     QDomDocument* getDoc();
     QString getFilePath();
+    QDomElement getFoodlistElement();
+    int getFoodRow();
 
 
     QDomElement searchElement(const QString name, QDomElement root);
