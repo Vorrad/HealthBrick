@@ -8,6 +8,7 @@
 #include <QListWidget>
 #include <QTextBrowser>
 #include <QDate>
+#include <QComboBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,6 +27,7 @@ public slots:
     bool loadXML(const QString filePath); // 读XML文档
 
     void changeFoodSelect(int row);
+    void changeToday(const QString date_str); // 改变当前日期选择
 
     void addFood();
     void editFood();
@@ -39,11 +41,14 @@ public:
     QWidget* createFoodList();  // 创建窗口1：今日菜单
     QWidget* createDetails();   // 创建窗口2：营养详情
     QWidget* createReport();    // 创建窗口3：营养报告
+
     void setFoodList(const QStringList nameList);
-    void setToday();
+    void setToday();            // 配置当前日期
+    void setReport();
 
     QStringList getFoodList(QDomElement list);  // 输入food_list，获取食物名列表
     QStringList getFoodDetail(QDomElement food);// 输入food，获取食物属性列表
+    QStringList getDates();
     QDomDocument* getDoc();
     QString getFilePath();
     QDomElement getFoodlistElement();
@@ -64,6 +69,7 @@ private:
     QDomElement dateElement;
     QDomElement foodListElement;
 
+    QComboBox* dateBox;
     QListWidget* foodList;
     QTextBrowser* summary;
     QTextBrowser* detail;

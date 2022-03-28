@@ -38,10 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setCentralWidget(centralWidget);
 
     // 测试用
-    on_openFileAction_triggered();
-    report->setText(mainDoc->toString(2));
-    setToday();
-
+//    on_openFileAction_triggered();
 }
 
 MainWindow::~MainWindow()
@@ -55,8 +52,12 @@ void MainWindow::on_openFileAction_triggered()
     loadXML(filePath);
     report->setText(mainDoc->toString(2));
 
-    QDomNode root = mainDoc->documentElement();    // 获取XML文件根元素
-    qDebug()<<root.toElement().nodeType();
+    root = mainDoc->documentElement();    // 获取XML文件根元素
+
+
+    setToday();
+    dateBox->addItems(getDates());
+    dateBox->setCurrentIndex(dateBox->count()-1);
 }
 
 void MainWindow::on_newWindowAction_triggered()
@@ -101,9 +102,10 @@ bool MainWindow::loadXML(const QString filePath)
         delete doc;
         return false;
     }
-    qDebug()<<"打开成功";
     file.close();
+
     mainDoc = doc;
+    this->setWindowTitle(QString("HealthBrick - %1").arg(filePath));
     return true;
 }
 
@@ -115,6 +117,10 @@ QWidget *MainWindow::createFoodList()
 
     QLabel* title = new QLabel("食物列表",widget);
     title->setAlignment(Qt::AlignHCenter);
+
+    dateBox = new QComboBox(this);
+    dateBox->setMaxVisibleItems(6);
+    connect(dateBox,SIGNAL(currentTextChanged(QString)),this,SLOT(changeToday(QString)));
 
     foodList = new QListWidget;
     connect(foodList,SIGNAL(currentRowChanged(int)),this,SLOT(changeFoodSelect(int)));
@@ -133,9 +139,10 @@ QWidget *MainWindow::createFoodList()
 
     summary = new QTextBrowser;
     summary->setFixedHeight(175);
-    summary->setText(QString("今天是%1年%2月%3日").arg(today.year()).arg(today.month()).arg(today.day()));
+    summary->setText(QString("%1年%2月%3日").arg(today.year()).arg(today.month()).arg(today.day()));
 
     layout->addWidget(title);
+    layout->addWidget(dateBox);
     layout->addWidget(foodList);
     layout->addLayout(buttonLayout);
     layout->addWidget(summary);
@@ -230,9 +237,63 @@ void MainWindow::setToday()
         food = food.nextSiblingElement();
     }
 
-    summary->setText(QString("今天是%1年%2月%3日\n今日概览：\n碳水：%4 g\n蛋白质：%5 g\n脂肪：%6 g")
+    QDomElement oldTotalCount = dateElement.nextSiblingElement().nextSiblingElement();
+    QDomElement newTotalCount = mainDoc->createElement("total_count");
+
+    QDomElement carbo = mainDoc->createElement("carbo");
+    QDomElement protein = mainDoc->createElement("protein");
+    QDomElement fat = mainDoc->createElement("fat");
+
+    QDomText carboText = mainDoc->createTextNode(QString("%1").arg(carboTotal));
+    QDomText proteinText = mainDoc->createTextNode(QString("%1").arg(proteinTotal));
+    QDomText fatText = mainDoc->createTextNode(QString("%1").arg(fatTotal));
+
+    newTotalCount.appendChild(carbo);
+    newTotalCount.appendChild(protein);
+    newTotalCount.appendChild(fat);
+    carbo.appendChild(carboText);
+    protein.appendChild(proteinText);
+    fat.appendChild(fatText);
+
+    dayElement.replaceChild(newTotalCount,oldTotalCount);
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)){
+        QMessageBox::critical(this, "出错啦",
+                                     QString("无法写入文件"));
+        return;
+    }
+    QTextStream out(&file);
+    mainDoc->save(out,QDomDocument::EncodingFromDocument);
+    file.close();
+
+    summary->setText(QString("%1年%2月%3日\n概览：\n碳水：%4 g\n蛋白质：%5 g\n脂肪：%6 g")
                      .arg(today.year()).arg(today.month()).arg(today.day())
                      .arg(carboTotal).arg(proteinTotal).arg(fatTotal));
+    setReport();
+}
+
+void MainWindow::setReport()
+{
+    QString reportText;
+    QDomElement day = root.firstChildElement();
+    QDomElement totalCount;
+    while (!day.nextSiblingElement().isNull()) day = day.nextSiblingElement();
+    while (!day.isNull())
+    {
+        totalCount = day.firstChildElement().nextSiblingElement().nextSiblingElement();
+        reportText.append(day.firstChildElement().firstChild().toText().data())
+                .append("统计：\n")
+                .append("碳水：")
+                .append(totalCount.firstChildElement().firstChild().toText().data())
+                .append(" g\n蛋白质：")
+                .append(totalCount.firstChildElement().nextSiblingElement().firstChild().toText().data())
+                .append(" g\n脂肪：")
+                .append(totalCount.firstChildElement().nextSiblingElement().nextSiblingElement().firstChild().toText().data())
+                .append(" g\n\n：");
+        day = day.previousSiblingElement();
+    }
+    report->setText(reportText);
 }
 
 QStringList MainWindow::getFoodList(QDomElement list)
@@ -265,6 +326,20 @@ QStringList MainWindow::getFoodDetail(QDomElement food)
     }
 
     return foodDetail;
+}
+
+QStringList MainWindow::getDates()
+{
+    QStringList dateList;
+    QDomElement day = root.firstChildElement();
+    QString date;
+    while (!day.isNull())
+    {
+        date = day.firstChildElement().firstChild().toText().data();
+        dateList.append(date);
+        day = day.nextSiblingElement();
+    }
+    return dateList;
 }
 
 QDomDocument* MainWindow::getDoc()
@@ -320,6 +395,12 @@ void MainWindow::changeFoodSelect(int row)
     detailText += QString("\n脂肪含量：%1").arg(i.next());
 
     detail->setText(detailText);
+}
+
+void MainWindow::changeToday(const QString date_str)
+{
+    today = QDate::fromString(date_str,"yyyy/M/d");
+    setToday();
 }
 
 void MainWindow::addFood()

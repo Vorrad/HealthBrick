@@ -251,7 +251,6 @@ void FoodEditDialog::addFood()
         return;
     }
 
-           // = MainWindow::searchElement(const QString name, QDomElement root);
 }
 
 void FoodEditDialog::confirmBtnClicked()
