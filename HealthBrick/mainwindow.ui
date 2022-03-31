@@ -31,6 +31,7 @@
     <property name="title">
      <string>文件</string>
     </property>
+    <addaction name="actionnewFileAction"/>
     <addaction name="openFileAction"/>
     <addaction name="newWindowAction"/>
     <addaction name="closeWindowAction"/>
@@ -60,6 +61,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionnewFileAction">
+   <property name="text">
+    <string>新建文件</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>
