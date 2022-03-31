@@ -20,6 +20,7 @@ class MainWindow : public QMainWindow
 
 public slots:
 
+//    void on_actionnewFileAction_triggered();
     void on_openFileAction_triggered();  // 打开文件
     void on_newWindowAction_triggered();    // 新建窗口
     void on_closeWindowAction_triggered();  // 关闭窗口
@@ -31,6 +32,7 @@ public slots:
 
     void addFood();
     void editFood();
+    void copyFood();
     void deleteFood();
 
 public:
@@ -56,6 +58,8 @@ public:
 
 
     QDomElement searchElement(const QString name, QDomElement root);
+
+private slots:
 
 private:
 

@@ -50,11 +50,7 @@ void MainWindow::on_openFileAction_triggered()
 {
     filePath = QFileDialog::getOpenFileName(this, "打开文件", " ",  QString("xml(*.xml);;所有文件(*.*)"));
     loadXML(filePath);
-    report->setText(mainDoc->toString(2));
-
     root = mainDoc->documentElement();    // 获取XML文件根元素
-
-
     setToday();
     dateBox->addItems(getDates());
     dateBox->setCurrentIndex(dateBox->count()-1);
@@ -112,7 +108,7 @@ bool MainWindow::loadXML(const QString filePath)
 QWidget *MainWindow::createFoodList()
 {
     QWidget* widget = new QWidget;
-    widget->setFixedWidth(225);
+    widget->setFixedWidth(300);
     QVBoxLayout* layout = new QVBoxLayout(widget);
 
     QLabel* title = new QLabel("食物列表",widget);
@@ -128,13 +124,16 @@ QWidget *MainWindow::createFoodList()
     QHBoxLayout* buttonLayout = new QHBoxLayout;
     QPushButton* addButton = new QPushButton("添加",widget);
     QPushButton* editButton = new QPushButton("编辑",widget);
+    QPushButton* copyButton = new QPushButton("复制",widget);
     QPushButton* deleteButton = new QPushButton("删除",widget);
     connect(addButton,&QPushButton::clicked,this,&MainWindow::addFood);
     connect(editButton,&QPushButton::clicked,this,&MainWindow::editFood);
+    connect(copyButton,&QPushButton::clicked,this,&MainWindow::copyFood);
     connect(deleteButton,&QPushButton::clicked,this,&MainWindow::deleteFood);
 
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(editButton);
+    buttonLayout->addWidget(copyButton);
     buttonLayout->addWidget(deleteButton);
 
     summary = new QTextBrowser;
@@ -208,7 +207,31 @@ void MainWindow::setToday()
     }
     if (status == 1)
     {
-        QMessageBox::warning(this, "", "未找到今日数据！");
+        QMessageBox::warning(this, "", "今日数据为空！");
+
+        QDomElement newDay = mainDoc->createElement("day");
+        root.appendChild(newDay);
+
+        QDomElement newDate = mainDoc->createElement("date");
+        QDomText dateText = mainDoc->createTextNode(QString("%1/%2/%3").arg(today.year()).arg(today.month()).arg(today.day()));
+        newDate.appendChild(dateText);
+        newDay.appendChild(newDate);
+
+        QDomElement newFoodlist = mainDoc->createElement("food_list");
+        newDay.appendChild(newFoodlist);
+
+        QDomElement newTotal = mainDoc->createElement("total_count");
+        newDay.appendChild(newTotal);
+
+        QFile file(filePath);
+        if (!file.open(QIODevice::WriteOnly)){
+            QMessageBox::critical(this, "出错啦",
+                                         QString("无法写入文件"));
+            return;
+        }
+        QTextStream out(&file);
+        mainDoc->save(out,QDomDocument::EncodingFromDocument);
+        file.close();
         return;
     }
     else
@@ -415,6 +438,26 @@ void MainWindow::editFood()
     dialog->show();
 }
 
+void MainWindow::copyFood()
+{
+    QDomElement food = foodListElement.firstChildElement();
+    for (int i=0;i<foodRow;i++)
+        food = food.nextSiblingElement();
+    QDomElement newfood = mainDoc->importNode(food,true).toElement();
+    foodListElement.appendChild(newfood);QFile file(filePath);
+
+    if (!file.open(QIODevice::WriteOnly)){
+        QMessageBox::critical(this, "出错啦",
+                                     QString("无法写入文件"));
+        return;
+    }
+    QTextStream out(&file);
+    mainDoc->save(out,QDomDocument::EncodingFromDocument);
+    file.close();
+
+    setToday();
+}
+
 void MainWindow::deleteFood()
 {
     QDomElement food = foodListElement.firstChildElement();
@@ -434,3 +477,23 @@ void MainWindow::deleteFood()
     setToday();
     return;
 }
+
+//void MainWindow::on_actionnewFileAction_triggered()
+//{
+//    //filePath = QFileDialog::getOpenFileName(this,"新建");
+//    filePath = "D:/Projects/HealthBrick - NutrientCalculator/HealthBrick/new.xml";
+//    QFile file;
+//    file.setFileName(filePath);
+//    if (file.exists())
+//    {
+//        QMessageBox::critical(this, "出错啦", "文件名已存在！");
+//        return;
+//    }
+//    file.open( QIODevice::ReadWrite | QIODevice::Text );
+//    file.write("New file\n");
+//    file.close();
+
+//    root = mainDoc->documentElement();    // 获取XML文件根元素
+//    setToday();
+//}
+

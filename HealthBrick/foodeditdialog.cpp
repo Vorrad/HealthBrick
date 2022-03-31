@@ -12,6 +12,9 @@
 
 FoodEditDialog::FoodEditDialog(enum EditMode mode, MainWindow* w)
 {
+    this->setWindowIcon(QIcon(":/icons/icon/番茄.svg"));
+    this->setWindowTitle("HealthBrick - 添加食物信息");
+
     dialogMode = mode;
     parentWindow = w;
     filePath = w->getFilePath();
@@ -84,6 +87,8 @@ FoodEditDialog::FoodEditDialog(enum EditMode mode, MainWindow* w)
 
     if (mode == FoodEditDialog::EditMode)
     {
+        this->setWindowTitle("HealthBrick - 编辑食物信息");
+
         QDomElement foodlist = w->getFoodlistElement();
         QDomElement food = foodlist.firstChildElement();
         int row = w->getFoodRow();
@@ -257,6 +262,7 @@ void FoodEditDialog::confirmBtnClicked()
 {
     if (dialogMode == FoodEditDialog::AddMode)
     {
+        this->setWindowTitle("HealthBrick - 添加食物");
         if (foodName->text()=="")
         {
             QMessageBox::critical(this,"出错啦","食物名不能为空");
@@ -272,6 +278,7 @@ void FoodEditDialog::confirmBtnClicked()
     }
     else if (dialogMode == FoodEditDialog::EditMode)
     {
+        this->setWindowTitle("HealthBrick - 编辑食物信息");
 
         if (foodName->text()=="")
         {
