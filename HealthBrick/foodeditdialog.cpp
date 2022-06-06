@@ -127,7 +127,6 @@ void FoodEditDialog::addFood()
     }
     if (day.isNull())  // 如果没有当前日期
     {
-        qDebug()<<"if";
         QDomElement newDay = mainDoc->createElement("day");
         root.appendChild(newDay);
 
@@ -198,8 +197,6 @@ void FoodEditDialog::addFood()
     }
     else
     {
-        qDebug()<<"else";
-
         QDomElement foodlist = day.firstChildElement().nextSiblingElement();
 
         QDomElement newFood = mainDoc->createElement("food");
@@ -268,7 +265,7 @@ void FoodEditDialog::confirmBtnClicked()
             QMessageBox::critical(this,"出错啦","食物名不能为空");
             return;
         }
-        if (foodWeight->text().toInt()==0)
+        if (foodWeight->text().toDouble()==0.0)
         {
             QMessageBox::critical(this,"出错啦","食物净含量不能为0");
             return;
@@ -285,7 +282,7 @@ void FoodEditDialog::confirmBtnClicked()
             QMessageBox::critical(this,"出错啦","食物名不能为空");
             return;
         }
-        if (foodWeight->text().toInt()==0)
+        if (foodWeight->text().toDouble()==0.0)
         {
             QMessageBox::critical(this,"出错啦","食物净含量不能为0");
             return;
